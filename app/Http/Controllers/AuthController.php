@@ -13,7 +13,7 @@ class AuthController extends Controller
     public function login()
     {
         if (Auth::check()) { // jika sudah login, maka redirect ke halaman home 
-            return redirect('/');
+            return redirect('/welcome');
         }
         return view('auth.login');
     }
@@ -24,10 +24,15 @@ class AuthController extends Controller
             $credentials = $request->only('username', 'password');
 
             if (Auth::attempt($credentials)) {
+                session([
+                    'profile_img_path' => Auth::user()->foto,
+                    'user_id' => Auth::user()->user_id
+                ]);
+
                 return response()->json([
                     'status' => true,
                     'message' => 'Login Berhasil',
-                    'redirect' => url('/')
+                    'redirect' => url('/welcome')
                 ]);
             }
 
@@ -84,6 +89,6 @@ class AuthController extends Controller
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect('login');
+        return redirect('/');
     }
 }
